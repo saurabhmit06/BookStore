@@ -14,6 +14,9 @@ import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import LastPageIcon from '@material-ui/icons/LastPage';
 import TableHead from '@material-ui/core/TableHead';
+import TextField from '@material-ui/core/TextField';
+import CircularProgress from '@material-ui/core/CircularProgress';
+
 import {
     Link,
 } from 'react-router-dom'
@@ -26,6 +29,8 @@ const actionsStyles = theme => ({
 });
 
 class TablePaginationActions extends React.Component {
+  
+  
   handleFirstPageButtonClick = event => {
     this.props.onChangePage(event, 0);
   };
@@ -116,9 +121,16 @@ const styles = theme => ({
 });
 
 class CustomPaginationActionsTable extends React.Component {
+  constructor(props){
+    super(props);
+    debugger
+    this.rowData = this.props.data;
+  }
+
   state = {
     page: 0,
     rowsPerPage: 5,
+    textSearch: "",
   };
 
   handleChangePage = (event, page) => {
@@ -128,33 +140,45 @@ class CustomPaginationActionsTable extends React.Component {
   handleChangeRowsPerPage = event => {
     this.setState({ rowsPerPage: event.target.value });
   };
-
+  componentDidUpdate(){
+    this.rowData = this.props.data;
+  }
+  handleChange= event =>{
+    this.setState({textSearch:event.target.value.trim()});
+  }
   render() {
     const { classes } = this.props;
     const { rowsPerPage, page } = this.state;
-    const rows = this.props.data;
+    const rows =  this.state.textSearch ? this.props.data.filter((item)=>{
+      return item[this.props.searchField].toLowerCase().includes( this.state.textSearch.toLowerCase());
+    }) : this.props.data;
+
     const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
 
-    if(rows.length==0)
-    {
+    if(!rows)
         return <div>No data</div>
-
-    }
 
     return (
       <Paper className={classes.root}>
         <div className={classes.tableWrapper}>
+        <TextField
+          id="standard-with-placeholder"
+          label="Search a Book"
+          placeholder="Book Title"
+          className={classes.textField}
+          margin="normal"
+          onChange={this.handleChange}
+        />
           <Table className={classes.table}>
           <TableHead>
           <TableRow>
           { 
+           rows.length  > 0 ?
                Object.keys(rows[0]).map(((cell,index)=>{
                    if(cell.toUpperCase() != "LINK")
                     return <TableCell key={index}component="th" scope="row" >{cell.toUpperCase()}</TableCell>
-                  }))
+                  })): !this.props.isDataLoaded ? <CircularProgress className={classes.progress} size={50} /> : <div></div>
           }                 
-          
-
           </TableRow>
         </TableHead>
             <TableBody>

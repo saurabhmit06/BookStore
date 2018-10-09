@@ -9,7 +9,7 @@ class DashBoard extends React.Component {
     render()
     {
         
-       return <Grid data={this.props.bookList ?this.dataFormat(this.props.bookList.books):[] } ></Grid> 
+       return <Grid searchField={"bookTitle"} isDataLoaded={!this.props.bookList.loading} data={this.props.bookList ?this.dataFormat(this.props.bookList.books):[] } ></Grid> 
     }
 
     dataFormat(data)
